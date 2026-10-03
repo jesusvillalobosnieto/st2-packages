@@ -18,7 +18,7 @@
 %define venv_python %{venv_bin}/%{python_binname}
 # https://github.com/StackStorm/st2/wiki/Where-all-to-update-pip-and-or-virtualenv
 
-%define pin_pip %{venv_python} %{venv_bin}/%{pip_binname} install pip==24.2
+%define pin_pip %{venv_python} %{venv_bin}/%{pip_binname} install pip==26.2.1
 %define install_venvctrl %{python_binname} -m pip install venvctrl
 
 %if 0%{?rhel} == 8

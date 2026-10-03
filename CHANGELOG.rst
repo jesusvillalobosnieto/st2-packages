@@ -8,3 +8,10 @@ Added
 ~~~~~
 * Add Ubuntu Jammy packaging
   Contributed by @mamercad
+
+Changed
+~~~~~~~
+
+ * Updated pip to 26.2.1 in the st2 virtualenv for deb and rpm packages.
+
+ * Updated redis to v8.10 in the docker-compose services.
