@@ -20,27 +20,6 @@ services:
       - mongodb
       - redis
 
-  jammy:
-    image: quay.io/stackstorm/packagingrunner
-    extends:
-      file: docker-compose.override.yml
-      service: suite-compose
-    environment:
-      - BUILDNODE=jammybuild
-      - TESTNODE=jammytest
-      - ST2_PACKAGES=st2
-    links:
-      - jammybuild
-      - jammytest
-      - rabbitmq
-      - mongodb
-      - redis
-
-  el8:
-    image: quay.io/stackstorm/packagingrunner
-    extends:
-      file: docker-compose.override.yml
-      service: suite-compose
     environment:
       - BUILDNODE=rockylinux8build
       - TESTNODE=rockylinux8test
@@ -121,15 +100,6 @@ services:
     volumes_from:
       - st2-packages-vol
 
-  jammybuild:
-    image: stackstorm/packagingbuild:jammy
-    build:
-      context: *dockerfiles
-      dockerfile: packagingbuild/jammy/Dockerfile
-    pull_policy: build
-    volumes_from:
-      - st2-packages-vol
-
   noblebuild:
     image: stackstorm/packagingbuild:noble
     build:
@@ -158,18 +128,6 @@ services:
       - container:st2-packages-vol
 
   ## Package testing nodes
-  jammytest:
-    image: stackstorm/packagingtest:jammy
-    build:
-      context: *dockerfiles
-      dockerfile: packagingtest/jammy/Dockerfile
-    pull_policy: build
-    privileged: true
-    volumes_from:
-      - st2-packages-vol
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-
   nobletest:
     image: stackstorm/packagingtest:noble
     build:
