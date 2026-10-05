@@ -16,6 +16,8 @@ Changed
 
  * Updated redis to v8.10 in the docker-compose services.
 
+ * Updated the install scripts to MongoDB 8.2 (was 7.0).
+
 Removed
 ~~~~~~~
 
