@@ -21,6 +21,9 @@ Changed
  * Updated the install scripts to nginx 1.31 from the nginx.org mainline repository
    (was the stable repository, 1.30).
 
+
+
+ * Updated the install scripts to Node.js 24.x for st2chatops (was 20.x).
 Removed
 ~~~~~~~
 
