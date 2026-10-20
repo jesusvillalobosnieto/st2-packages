@@ -47,22 +47,7 @@ services:
       - mongodb
       - redis
 
-  el10:
-    image: stackstorm/packagingrunner:latest
-    working_dir: /root/st2-packages
-    volumes_from:
-      - container:st2-packages-vol
-    environment:
-      - BUILDNODE=rockylinux10build
-      - TESTNODE=rockylinux10test
-    links:
-      - rockylinux10build
-      - rockylinux10test
-      - rabbitmq
-      - mongodb
-      - redis
-
-  # el9/el10 packages built on Rocky Linux and tested on Red Hat UBI
+  # el9 packages built on Rocky Linux and tested on Red Hat UBI
   rhel9:
     image: stackstorm/packagingrunner:latest
     working_dir: /root/st2-packages
@@ -78,36 +63,12 @@ services:
       - mongodb
       - redis
 
-  rhel10:
-    image: stackstorm/packagingrunner:latest
-    working_dir: /root/st2-packages
-    volumes_from:
-      - container:st2-packages-vol
-    environment:
-      - BUILDNODE=rockylinux10build
-      - TESTNODE=rhel10test
-    links:
-      - rockylinux10build
-      - rhel10test
-      - rabbitmq
-      - mongodb
-      - redis
-
   ## Package build nodes
   #
   focalbuild:
     image: stackstorm/packagingbuild:focal
     volumes_from:
       - st2-packages-vol
-
-  noblebuild:
-    image: stackstorm/packagingbuild:noble
-    build:
-      context: *dockerfiles
-      dockerfile: packagingbuild/noble/Dockerfile
-    pull_policy: build
-    volumes_from:
-      - container:st2-packages-vol
 
   rockylinux9build:
     image: stackstorm/packagingbuild:rockylinux9
@@ -118,28 +79,7 @@ services:
     volumes_from:
       - container:st2-packages-vol
 
-  rockylinux10build:
-    image: stackstorm/packagingbuild:rockylinux10
-    build:
-      context: *dockerfiles
-      dockerfile: packagingbuild/rockylinux10/Dockerfile
-    pull_policy: build
-    volumes_from:
-      - container:st2-packages-vol
-
   ## Package testing nodes
-  nobletest:
-    image: stackstorm/packagingtest:noble
-    build:
-      context: *dockerfiles
-      dockerfile: packagingtest/noble/Dockerfile
-    pull_policy: build
-    privileged: true
-    volumes_from:
-      - st2-packages-vol
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-
   rockylinux8test:
     image: stackstorm/packagingtest:rockylinux8-systemd
     privileged: true
@@ -164,42 +104,11 @@ services:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup
 
-  rockylinux10test:
-    image: stackstorm/packagingtest:rockylinux10
-    build:
-      context: *dockerfiles
-      dockerfile: packagingtest/rockylinux10/Dockerfile
-    pull_policy: build
-    privileged: true
-    cap_add:
-      - SYS_ADMIN
-    security_opt:
-      - seccomp:unconfined
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup
-
   rhel9test:
     image: stackstorm/packagingtest:rhel9
     build:
       context: *dockerfiles
       dockerfile: packagingtest/rhel9/Dockerfile
-    pull_policy: build
-    privileged: true
-    cgroup: host
-    cap_add:
-      - SYS_ADMIN
-    security_opt:
-      - seccomp:unconfined
-    volumes_from:
-      - container:st2-packages-vol
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup
-
-  rhel10test:
-    image: stackstorm/packagingtest:rhel10
-    build:
-      context: *dockerfiles
-      dockerfile: packagingtest/rhel10/Dockerfile
     pull_policy: build
     privileged: true
     cgroup: host
