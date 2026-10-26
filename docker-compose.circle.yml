@@ -20,6 +20,27 @@ services:
       - mongodb
       - redis
 
+  noble:
+    image: stackstorm/packagingrunner:latest
+    working_dir: /root/st2-packages
+    volumes_from:
+      - container:st2-packages-vol
+    environment:
+      - BUILDNODE=noblebuild
+      - TESTNODE=nobletest
+      - ST2_PACKAGES=st2
+    links:
+      - noblebuild
+      - nobletest
+      - rabbitmq
+      - mongodb
+      - redis
+
+  el8:
+    image: quay.io/stackstorm/packagingrunner
+    extends:
+      file: docker-compose.override.yml
+      service: suite-compose
     environment:
       - BUILDNODE=rockylinux8build
       - TESTNODE=rockylinux8test
@@ -68,18 +89,44 @@ services:
   focalbuild:
     image: stackstorm/packagingbuild:focal
     volumes_from:
-      - st2-packages-vol
+      - container:st2-packages-vol
 
-  rockylinux9build:
-    image: stackstorm/packagingbuild:rockylinux9
-    build:
-      context: *dockerfiles
-      dockerfile: packagingbuild/rockylinux9/Dockerfile
-    pull_policy: build
+  noblebuild:
+    image: stackstorm/packagingbuild:noble
     volumes_from:
       - container:st2-packages-vol
 
+  rockylinux8build:
+    image: stackstorm/packagingbuild:rockylinux8
+    extends:
+      file: docker-compose.override.yml
+      service: volumes-compose
+
+  rockylinux9build:
+    image: stackstorm/packagingbuild:rockylinux9
+    extends:
+      file: docker-compose.override.yml
+      service: volumes-compose
+
   ## Package testing nodes
+  #
+  focaltest:
+    image: stackstorm/packagingtest:focal-systemd
+    privileged: true
+    volumes_from:
+      - container:st2-packages-vol
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+
+  nobletest:
+    image: stackstorm/packagingtest:noble
+    privileged: true
+    cgroup: host
+    volumes_from:
+      - container:st2-packages-vol
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+
   rockylinux8test:
     image: stackstorm/packagingtest:rockylinux8-systemd
     privileged: true
@@ -91,11 +138,7 @@ services:
       - /sys/fs/cgroup:/sys/fs/cgroup
 
   rockylinux9test:
-    image: stackstorm/packagingtest:rockylinux9
-    build:
-      context: *dockerfiles
-      dockerfile: packagingtest/rockylinux9/Dockerfile
-    pull_policy: build
+    image: stackstorm/packagingtest:rockylinux9-systemd
     privileged: true
     cap_add:
       - SYS_ADMIN
@@ -135,6 +178,6 @@ services:
       - "27017:27017"
 
   redis:
-    image: redis:8.10
+    image: redis:7.2.4
     ports:
       - "6379:6379"

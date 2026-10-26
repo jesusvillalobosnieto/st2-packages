@@ -18,6 +18,13 @@ DEB_DISTRO := $(shell lsb_release -cs)
 
 BUILD_PRE_DEPENDS := python3 (>= 3.8)
 BUILD_DEPENDS := python3-distutils, python3-dev
+# Ubuntu noble ships Python 3.12, where distutils no longer exists in the
+# stdlib and the 'python3-distutils' package was dropped from the archive,
+# so the dependency cannot be satisfied there. It is only needed on the
+# pre-3.12 distros (focal/jammy).
+ifeq ($(DEB_DISTRO),noble)
+BUILD_DEPENDS := python3-dev
+endif
 
 %:
 	dh $@ --with python-virtualenv --python /usr/bin/python3
